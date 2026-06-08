@@ -2,38 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snake Survival Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Snake Survival Arena</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="game-wrapper">
-    <h1>Snake Survival</h1>
+  <main class="app">
+    <section class="topbar">
+      <div>
+        <h1>Snake Survival Arena</h1>
+        <p>Eat food and smaller snakes. Avoid bigger and poison snakes.</p>
+      </div>
 
-    <div class="info">
-      <span>Score: <strong id="score">0</strong></span>
-      <span>Level: <strong id="level">1</strong></span>
-      <span>Speed: <strong id="speed">1x</strong></span>
-    </div>
+      <div class="hud">
+        <div><span>Score</span><strong id="score">0</strong></div>
+        <div><span>Level</span><strong id="level">1</strong></div>
+        <div><span>High</span><strong id="highScore">0</strong></div>
+      </div>
+    </section>
 
-    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <section class="game-area">
+      <canvas id="gameCanvas" width="640" height="640"></canvas>
 
-    <div class="legend">
-      <span><b class="food"></b> Food</span>
-      <span><b class="small"></b> Small Snake - Safe</span>
-      <span><b class="big"></b> Big Snake - Danger</span>
-      <span><b class="poison"></b> Poison Snake - Danger</span>
-    </div>
+      <div id="overlay" class="overlay">
+        <h2 id="overlayTitle">Snake Survival Arena</h2>
+        <p id="overlayText">Press Start, Space, or Enter to play.</p>
+        <button id="startButton">Start Game</button>
+      </div>
+    </section>
 
-    <p class="instructions">
-      Use Arrow Keys or WASD to move. Eat food and small snakes. Avoid big and poison snakes. The snake wraps around the screen.
+    <section class="legend">
+      <span><i class="dot food"></i> Food</span>
+      <span><i class="dot player"></i> You</span>
+      <span><i class="dot small"></i> Smaller snake = safe</span>
+      <span><i class="dot big"></i> Bigger snake = death</span>
+      <span><i class="dot poison"></i> Poison snake = death</span>
+    </section>
+
+    <section class="buttons">
+      <button id="pauseButton">Pause</button>
+      <button id="restartButton">Restart</button>
+    </section>
+
+    <section class="mobile-controls" aria-label="Mobile controls">
+      <button data-dir="UP">▲</button>
+      <div>
+        <button data-dir="LEFT">◀</button>
+        <button data-dir="DOWN">▼</button>
+        <button data-dir="RIGHT">▶</button>
+      </div>
+    </section>
+
+    <p class="help">
+      Controls: Arrow keys / WASD. Space or P pauses. The snake wraps around the screen.
     </p>
-
-    <div class="controls">
-      <button id="startBtn">Start / Pause</button>
-      <button id="restartBtn">Restart</button>
-    </div>
-  </div>
+  </main>
 
   <script src="game.js"></script>
 </body>

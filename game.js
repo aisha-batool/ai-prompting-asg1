@@ -1,365 +1,499 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+(() => {
+  "use strict";
 
-const scoreEl = document.getElementById("score");
-const levelEl = document.getElementById("level");
-const speedEl = document.getElementById("speed");
-const startBtn = document.getElementById("startBtn");
-const restartBtn = document.getElementById("restartBtn");
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
 
-const box = 20;
-const cols = canvas.width / box;
-const rows = canvas.height / box;
+  const scoreEl = document.getElementById("score");
+  const levelEl = document.getElementById("level");
+  const highScoreEl = document.getElementById("highScore");
 
-let snake;
-let direction;
-let nextDirection;
-let food;
-let enemies;
-let score;
-let level;
-let speed;
-let gameLoop;
-let isPaused;
-let isGameOver;
+  const overlay = document.getElementById("overlay");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlayText = document.getElementById("overlayText");
+  const startButton = document.getElementById("startButton");
+  const pauseButton = document.getElementById("pauseButton");
+  const restartButton = document.getElementById("restartButton");
 
-function initGame() {
-  snake = [
-    { x: 10, y: 10 },
-    { x: 9, y: 10 },
-    { x: 8, y: 10 }
-  ];
+  const CELL = 20;
+  const COLS = Math.floor(canvas.width / CELL);
+  const ROWS = Math.floor(canvas.height / CELL);
 
-  direction = "RIGHT";
-  nextDirection = "RIGHT";
-  food = randomFreePosition();
-  enemies = [];
-  score = 0;
-  level = 1;
-  speed = 160;
-  isPaused = false;
-  isGameOver = false;
+  const COLORS = {
+    bg: "#020604",
+    grid: "rgba(255,255,255,0.035)",
+    playerHead: "#38f58c",
+    playerBody: "#13a45b",
+    food: "#ffd447",
+    small: "#4aa3ff",
+    big: "#ff4a4a",
+    poison: "#c85cff",
+    eye: "#06120b"
+  };
 
-  updateHud();
-  restartLoop();
-  drawGame();
-}
+  let player;
+  let direction;
+  let nextDirection;
+  let pendingGrowth;
+  let food;
+  let enemies;
+  let score;
+  let level;
+  let highScore;
+  let state;
+  let lastTime;
+  let accumulator;
+  let tickMs;
 
-function restartLoop() {
-  clearInterval(gameLoop);
-  gameLoop = setInterval(updateGame, speed);
-}
+  function resetGame() {
+    player = [
+      { x: 8, y: 16 },
+      { x: 7, y: 16 },
+      { x: 6, y: 16 },
+      { x: 5, y: 16 }
+    ];
 
-function updateGame() {
-  if (isPaused || isGameOver) return;
+    direction = "RIGHT";
+    nextDirection = "RIGHT";
+    pendingGrowth = 0;
+    enemies = [];
+    score = 0;
+    level = 1;
+    tickMs = 150;
+    state = "ready";
+    lastTime = 0;
+    accumulator = 0;
 
-  direction = nextDirection;
-  moveSnake();
-  checkFoodCollision();
-  checkEnemyCollision();
-  checkSelfCollision();
-  updateLevel();
-  spawnEnemies();
-  moveEnemies();
-  drawGame();
-}
+    highScore = Number(localStorage.getItem("snakeArenaHighScore") || 0);
+    food = getFreePosition(6);
 
-function moveSnake() {
-  const head = { ...snake[0] };
-
-  if (direction === "UP") head.y--;
-  if (direction === "DOWN") head.y++;
-  if (direction === "LEFT") head.x--;
-  if (direction === "RIGHT") head.x++;
-
-  // Screen wrap logic
-  if (head.x < 0) head.x = cols - 1;
-  if (head.x >= cols) head.x = 0;
-  if (head.y < 0) head.y = rows - 1;
-  if (head.y >= rows) head.y = 0;
-
-  snake.unshift(head);
-  snake.pop();
-}
-
-function checkFoodCollision() {
-  const head = snake[0];
-
-  if (samePosition(head, food)) {
-    score += 1;
-    growSnake(1);
-    food = randomFreePosition();
     updateHud();
+    showOverlay("Snake Survival Arena", "Press Start, Space, or Enter to play.", "Start Game");
+    draw();
   }
-}
 
-function checkEnemyCollision() {
-  const head = snake[0];
+  function startGame() {
+    if (state === "gameover") {
+      resetGame();
+    }
 
-  for (let i = enemies.length - 1; i >= 0; i--) {
-    const enemy = enemies[i];
+    state = "playing";
+    hideOverlay();
+    lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
+  }
 
-    if (samePosition(head, enemy)) {
-      if (enemy.type === "small") {
-        score += 3;
-        growSnake(2);
-        enemies.splice(i, 1);
-        updateHud();
-      } else if (enemy.type === "big") {
-        endGame("You hit a big snake. Game over!");
-      } else if (enemy.type === "poison") {
-        endGame("You ate a poison snake. Game over!");
+  function pauseGame() {
+    if (state === "playing") {
+      state = "paused";
+      showOverlay("Paused", "Press Space, P, or Resume to continue.", "Resume");
+    } else if (state === "paused" || state === "ready") {
+      startGame();
+    }
+  }
+
+  function gameLoop(time) {
+    if (state !== "playing") return;
+
+    const delta = Math.min(time - lastTime, 120);
+    lastTime = time;
+    accumulator += delta;
+
+    while (accumulator >= tickMs) {
+      update();
+      accumulator -= tickMs;
+    }
+
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  function update() {
+    direction = nextDirection;
+
+    const oldHead = player[0];
+    const newHead = wrap(movePoint(oldHead, direction));
+
+    player.unshift(newHead);
+
+    if (pendingGrowth > 0) {
+      pendingGrowth--;
+    } else {
+      player.pop();
+    }
+
+    if (hitsOwnBody(newHead)) {
+      return endGame("You crashed into yourself.");
+    }
+
+    if (same(newHead, food)) {
+      score += 1;
+      pendingGrowth += 1;
+      food = getFreePosition(5);
+      updateDifficulty();
+      updateHud();
+    }
+
+    // Check collision after player moves, before enemies move.
+    if (checkEnemyCollision()) return;
+
+    maybeSpawnEnemy();
+    moveEnemies();
+
+    // Check again after enemies move, so an enemy cannot move through the player.
+    checkEnemyCollision();
+  }
+
+  function moveEnemies() {
+    for (const enemy of enemies) {
+      if (Math.random() < enemy.turnChance) {
+        enemy.dir = chooseEnemyDirection(enemy);
       }
+
+      const newHead = wrap(movePoint(enemy.body[0], enemy.dir));
+      enemy.body.unshift(newHead);
+      enemy.body.pop();
     }
-  }
-}
 
-function checkSelfCollision() {
-  const head = snake[0];
-
-  for (let i = 1; i < snake.length; i++) {
-    if (samePosition(head, snake[i])) {
-      endGame("You hit yourself. Game over!");
-      return;
-    }
-  }
-}
-
-function updateLevel() {
-  let newLevel = 1;
-
-  if (score >= 6) newLevel = 2;
-  if (score >= 16) newLevel = 3;
-  if (score >= 31) newLevel = 4;
-  if (score >= 50) newLevel = 5;
-  if (score >= 75) newLevel = 6;
-
-  if (newLevel !== level) {
-    level = newLevel;
-    speed = Math.max(55, 170 - level * 20);
-    updateHud();
-    restartLoop();
-  }
-}
-
-function spawnEnemies() {
-  const maxEnemies = level + 2;
-  const spawnChance = 0.018 + level * 0.006;
-
-  if (enemies.length >= maxEnemies) return;
-
-  if (Math.random() < spawnChance) {
-    const position = randomFreePosition();
-    const type = chooseEnemyType();
-
-    enemies.push({
-      x: position.x,
-      y: position.y,
-      type,
-      direction: randomDirection()
+    // Remove enemy snakes that overlap each other too much. This prevents messy stacks.
+    enemies = enemies.filter((enemy, index) => {
+      return !enemies.some((other, otherIndex) => {
+        if (index === otherIndex) return false;
+        return same(enemy.body[0], other.body[0]);
+      });
     });
   }
-}
 
-function chooseEnemyType() {
-  const random = Math.random();
+  function checkEnemyCollision() {
+    const head = player[0];
 
-  if (level === 1) {
-    return random < 0.75 ? "small" : "big";
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const enemy = enemies[i];
+      const hitIndex = enemy.body.findIndex(part => same(part, head));
+
+      if (hitIndex === -1) continue;
+
+      if (enemy.type === "small" && player.length > enemy.body.length) {
+        score += 3 + enemy.body.length;
+        pendingGrowth += Math.min(5, enemy.body.length);
+        enemies.splice(i, 1);
+        updateDifficulty();
+        updateHud();
+        return false;
+      }
+
+      if (enemy.type === "small") {
+        endGame("That snake was not small enough to eat.");
+      } else if (enemy.type === "big") {
+        endGame("You hit a bigger snake.");
+      } else {
+        endGame("You touched a poison snake.");
+      }
+
+      return true;
+    }
+
+    return false;
   }
 
-  if (level <= 3) {
-    if (random < 0.55) return "small";
-    if (random < 0.85) return "big";
+  function maybeSpawnEnemy() {
+    const maxEnemies = Math.min(2 + level, 9);
+    if (enemies.length >= maxEnemies) return;
+
+    const chance = 0.035 + level * 0.006;
+    if (Math.random() > chance) return;
+
+    const type = chooseEnemyType();
+    const length = enemyLength(type);
+    const dir = randomDirection();
+    const start = getFreePosition(8);
+    const body = buildEnemyBody(start, dir, length);
+
+    if (!body || body.some(p => isOccupied(p, 5))) return;
+
+    enemies.push({
+      type,
+      dir,
+      body,
+      turnChance: type === "small" ? 0.28 : 0.18
+    });
+  }
+
+  function chooseEnemyType() {
+    const r = Math.random();
+
+    if (level === 1) {
+      return r < 0.85 ? "small" : "big";
+    }
+
+    if (level <= 3) {
+      if (r < 0.6) return "small";
+      if (r < 0.88) return "big";
+      return "poison";
+    }
+
+    if (r < 0.45) return "small";
+    if (r < 0.72) return "big";
     return "poison";
   }
 
-  if (random < 0.4) return "small";
-  if (random < 0.7) return "big";
-  return "poison";
-}
+  function enemyLength(type) {
+    if (type === "small") return Math.max(2, Math.min(player.length - 1, 2 + Math.floor(Math.random() * 3)));
+    if (type === "big") return player.length + 2 + Math.floor(Math.random() * Math.max(2, level));
+    return 3 + Math.floor(Math.random() * 3);
+  }
 
-function moveEnemies() {
-  enemies.forEach(enemy => {
-    if (Math.random() < 0.25) {
-      enemy.direction = randomDirection();
+  function buildEnemyBody(head, dir, length) {
+    const opposite = oppositeDirection(dir);
+    const body = [head];
+
+    for (let i = 1; i < length; i++) {
+      body.push(wrap(movePoint(body[i - 1], opposite)));
     }
 
-    if (enemy.direction === "UP") enemy.y--;
-    if (enemy.direction === "DOWN") enemy.y++;
-    if (enemy.direction === "LEFT") enemy.x--;
-    if (enemy.direction === "RIGHT") enemy.x++;
-
-    if (enemy.x < 0) enemy.x = cols - 1;
-    if (enemy.x >= cols) enemy.x = 0;
-    if (enemy.y < 0) enemy.y = rows - 1;
-    if (enemy.y >= rows) enemy.y = 0;
-  });
-}
-
-function growSnake(amount) {
-  const tail = snake[snake.length - 1];
-
-  for (let i = 0; i < amount; i++) {
-    snake.push({ ...tail });
-  }
-}
-
-function drawGame() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawGrid();
-  drawFood();
-  drawEnemies();
-  drawSnake();
-
-  if (isPaused && !isGameOver) {
-    drawCenterText("Paused");
-  }
-}
-
-function drawGrid() {
-  ctx.strokeStyle = "rgba(255,255,255,0.04)";
-  ctx.lineWidth = 1;
-
-  for (let x = 0; x <= canvas.width; x += box) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
-    ctx.stroke();
+    return body;
   }
 
-  for (let y = 0; y <= canvas.height; y += box) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-    ctx.stroke();
+  function updateDifficulty() {
+    const newLevel = Math.min(10, 1 + Math.floor(score / 10));
+
+    if (newLevel !== level) {
+      level = newLevel;
+      tickMs = Math.max(62, 155 - (level - 1) * 11);
+    }
   }
-}
 
-function drawSnake() {
-  snake.forEach((part, index) => {
-    ctx.fillStyle = index === 0 ? "#00ff88" : "#00aa55";
-    roundedRect(part.x * box + 1, part.y * box + 1, box - 2, box - 2, 5);
-  });
-}
+  function setDirection(dir) {
+    if (state === "ready") startGame();
 
-function drawFood() {
-  ctx.fillStyle = "#ffcc00";
-  ctx.beginPath();
-  ctx.arc(food.x * box + box / 2, food.y * box + box / 2, box / 2.7, 0, Math.PI * 2);
-  ctx.fill();
-}
+    if (dir === oppositeDirection(direction)) return;
+    if (dir === oppositeDirection(nextDirection)) return;
 
-function drawEnemies() {
-  enemies.forEach(enemy => {
-    if (enemy.type === "small") ctx.fillStyle = "#3399ff";
-    if (enemy.type === "big") ctx.fillStyle = "#ff3333";
-    if (enemy.type === "poison") ctx.fillStyle = "#aa00ff";
+    nextDirection = dir;
+  }
 
-    roundedRect(enemy.x * box + 2, enemy.y * box + 2, box - 4, box - 4, 4);
-  });
-}
+  function chooseEnemyDirection(enemy) {
+    const dirs = ["UP", "DOWN", "LEFT", "RIGHT"].filter(d => d !== oppositeDirection(enemy.dir));
+    return dirs[Math.floor(Math.random() * dirs.length)];
+  }
 
-function drawCenterText(text) {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
-  ctx.fillRect(0, canvas.height / 2 - 45, canvas.width, 90);
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "36px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 12);
-}
+  function movePoint(point, dir) {
+    if (dir === "UP") return { x: point.x, y: point.y - 1 };
+    if (dir === "DOWN") return { x: point.x, y: point.y + 1 };
+    if (dir === "LEFT") return { x: point.x - 1, y: point.y };
+    return { x: point.x + 1, y: point.y };
+  }
 
-function roundedRect(x, y, width, height, radius) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.fill();
-}
-
-function randomFreePosition() {
-  let position;
-  let safe = false;
-
-  while (!safe) {
-    position = {
-      x: Math.floor(Math.random() * cols),
-      y: Math.floor(Math.random() * rows)
+  function wrap(point) {
+    return {
+      x: (point.x + COLS) % COLS,
+      y: (point.y + ROWS) % ROWS
     };
-
-    safe = !snake.some(part => samePosition(part, position)) &&
-           !enemies.some(enemy => samePosition(enemy, position));
   }
 
-  return position;
-}
+  function getFreePosition(buffer = 0) {
+    for (let tries = 0; tries < 500; tries++) {
+      const point = {
+        x: Math.floor(Math.random() * COLS),
+        y: Math.floor(Math.random() * ROWS)
+      };
 
-function randomDirection() {
-  const dirs = ["UP", "DOWN", "LEFT", "RIGHT"];
-  return dirs[Math.floor(Math.random() * dirs.length)];
-}
+      if (!isOccupied(point, buffer)) return point;
+    }
 
-function samePosition(a, b) {
-  return a.x === b.x && a.y === b.y;
-}
-
-function updateHud() {
-  scoreEl.textContent = score;
-  levelEl.textContent = level;
-  speedEl.textContent = `${level}x`;
-}
-
-function endGame(message) {
-  isGameOver = true;
-  clearInterval(gameLoop);
-  drawCenterText("Game Over");
-
-  setTimeout(() => {
-    alert(`${message}\nFinal Score: ${score}\nLevel Reached: ${level}`);
-  }, 150);
-}
-
-function togglePause() {
-  if (isGameOver) {
-    initGame();
-    return;
+    return { x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) };
   }
 
-  isPaused = !isPaused;
-  drawGame();
-}
+  function isOccupied(point, buffer = 0) {
+    const allParts = [
+      ...player,
+      ...enemies.flatMap(enemy => enemy.body),
+      food
+    ].filter(Boolean);
 
-startBtn.addEventListener("click", togglePause);
-restartBtn.addEventListener("click", initGame);
-
-document.addEventListener("keydown", event => {
-  const key = event.key.toLowerCase();
-
-  if ((key === "arrowup" || key === "w") && direction !== "DOWN") {
-    nextDirection = "UP";
+    return allParts.some(part => distanceWrapped(point, part) <= buffer);
   }
 
-  if ((key === "arrowdown" || key === "s") && direction !== "UP") {
-    nextDirection = "DOWN";
+  function distanceWrapped(a, b) {
+    const dx = Math.min(Math.abs(a.x - b.x), COLS - Math.abs(a.x - b.x));
+    const dy = Math.min(Math.abs(a.y - b.y), ROWS - Math.abs(a.y - b.y));
+    return Math.max(dx, dy);
   }
 
-  if ((key === "arrowleft" || key === "a") && direction !== "RIGHT") {
-    nextDirection = "LEFT";
+  function hitsOwnBody(head) {
+    return player.slice(1).some(part => same(part, head));
   }
 
-  if ((key === "arrowright" || key === "d") && direction !== "LEFT") {
-    nextDirection = "RIGHT";
+  function same(a, b) {
+    return a && b && a.x === b.x && a.y === b.y;
   }
 
-  if (key === " " || key === "p") {
-    togglePause();
+  function randomDirection() {
+    const dirs = ["UP", "DOWN", "LEFT", "RIGHT"];
+    return dirs[Math.floor(Math.random() * dirs.length)];
   }
-});
 
-initGame();
+  function oppositeDirection(dir) {
+    return {
+      UP: "DOWN",
+      DOWN: "UP",
+      LEFT: "RIGHT",
+      RIGHT: "LEFT"
+    }[dir];
+  }
+
+  function draw() {
+    ctx.fillStyle = COLORS.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawGrid();
+    drawFood();
+    drawEnemies();
+    drawPlayer();
+  }
+
+  function drawGrid() {
+    ctx.strokeStyle = COLORS.grid;
+    ctx.lineWidth = 1;
+
+    for (let x = 0; x <= canvas.width; x += CELL) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+
+    for (let y = 0; y <= canvas.height; y += CELL) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+  }
+
+  function drawFood() {
+    const px = food.x * CELL + CELL / 2;
+    const py = food.y * CELL + CELL / 2;
+
+    ctx.fillStyle = COLORS.food;
+    ctx.beginPath();
+    ctx.arc(px, py, CELL * 0.34, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawPlayer() {
+    player.forEach((part, index) => {
+      const color = index === 0 ? COLORS.playerHead : COLORS.playerBody;
+      drawCell(part, color, index === 0 ? 7 : 5);
+
+      if (index === 0) drawEyes(part, direction);
+    });
+  }
+
+  function drawEnemies() {
+    for (const enemy of enemies) {
+      const color = enemy.type === "small" ? COLORS.small : enemy.type === "big" ? COLORS.big : COLORS.poison;
+
+      enemy.body.forEach((part, index) => {
+        drawCell(part, color, index === 0 ? 7 : 5);
+        if (index === 0) drawEyes(part, enemy.dir);
+      });
+    }
+  }
+
+  function drawCell(part, color, radius) {
+    const x = part.x * CELL + 2;
+    const y = part.y * CELL + 2;
+    const size = CELL - 4;
+
+    ctx.fillStyle = color;
+    roundRect(x, y, size, size, radius);
+    ctx.fill();
+  }
+
+  function drawEyes(part, dir) {
+    const x = part.x * CELL;
+    const y = part.y * CELL;
+
+    const positions = {
+      RIGHT: [[13, 6], [13, 14]],
+      LEFT: [[7, 6], [7, 14]],
+      UP: [[6, 7], [14, 7]],
+      DOWN: [[6, 13], [14, 13]]
+    }[dir];
+
+    ctx.fillStyle = COLORS.eye;
+    for (const [ex, ey] of positions) {
+      ctx.beginPath();
+      ctx.arc(x + ex, y + ey, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function roundRect(x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.arcTo(x, y + height, x, y, radius);
+    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.closePath();
+  }
+
+  function updateHud() {
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem("snakeArenaHighScore", String(highScore));
+    }
+
+    scoreEl.textContent = score;
+    levelEl.textContent = level;
+    highScoreEl.textContent = highScore;
+  }
+
+  function showOverlay(title, text, buttonText) {
+    overlayTitle.textContent = title;
+    overlayText.textContent = text;
+    startButton.textContent = buttonText;
+    overlay.classList.remove("hidden");
+  }
+
+  function hideOverlay() {
+    overlay.classList.add("hidden");
+  }
+
+  function endGame(reason) {
+    state = "gameover";
+    updateHud();
+    showOverlay("Game Over", `${reason} Final score: ${score}. Level reached: ${level}.`, "Play Again");
+  }
+
+  document.addEventListener("keydown", event => {
+    const key = event.key.toLowerCase();
+
+    if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
+      event.preventDefault();
+    }
+
+    if (key === "arrowup" || key === "w") setDirection("UP");
+    if (key === "arrowdown" || key === "s") setDirection("DOWN");
+    if (key === "arrowleft" || key === "a") setDirection("LEFT");
+    if (key === "arrowright" || key === "d") setDirection("RIGHT");
+
+    if (key === " " || key === "p") pauseGame();
+    if (key === "enter" && state !== "playing") startGame();
+  });
+
+  document.querySelectorAll("[data-dir]").forEach(button => {
+    button.addEventListener("click", () => setDirection(button.dataset.dir));
+  });
+
+  startButton.addEventListener("click", startGame);
+  pauseButton.addEventListener("click", pauseGame);
+  restartButton.addEventListener("click", () => {
+    resetGame();
+    startGame();
+  });
+
+  resetGame();
+})();

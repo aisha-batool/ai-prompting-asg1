@@ -1,51 +1,51 @@
-# Snake Survival Game
+# Snake Survival Arena
 
-A web-based Snake survival game built with HTML, CSS, and JavaScript.
+A web-based snake survival game built with plain HTML, CSS, and JavaScript.
 
 ## Features
 
-- Classic snake movement
+- Browser-based game using HTML Canvas
 - Screen wrapping
-- Increasing levels
-- Increasing speed
-- Enemy snakes
-- Eat small snakes
-- Avoid big snakes
-- Avoid poison snakes
-- Pause and restart buttons
-- GitHub Pages ready
+- Increasing level and speed
+- Enemy snakes with real bodies
+- Eat smaller snakes only
+- Bigger snakes and poison snakes kill the player
+- Safer spawning logic
+- Start, pause, restart
+- Keyboard and mobile controls
+- High score saved in browser localStorage
 
-## How to Play
+## Controls
 
-Use Arrow Keys or WASD to move.
+- Arrow keys or WASD to move
+- Space or P to pause
+- Enter to start
+- Mobile buttons on small screens
 
-Eat yellow food and blue small snakes.
+## GitHub Pages Setup
 
-Avoid red big snakes and purple poison snakes.
+Important: GitHub Pages needs these files in the root of your repository:
 
-Press `P` or Space to pause.
-
-## Run Locally
-
-Open `index.html` in your browser.
-
-## Deploy on GitHub Pages
-
-1. Create a new GitHub repository.
-2. Upload all project files.
-3. Go to repository Settings.
-4. Open Pages.
-5. Select branch: `main`.
-6. Select folder: `/root`.
-7. Save.
-
-## Git Commands
-
-```bash
-git init
-git add .
-git commit -m "Initial snake survival game"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/snake-survival-game.git
-git push -u origin main
+```text
+index.html
+style.css
+game.js
+README.md
 ```
+
+Do not upload only the zip file. Extract it first, then upload the files.
+
+Then go to:
+
+```text
+Repository Settings -> Pages
+```
+
+Select:
+
+```text
+Branch: main
+Folder: /root
+```
+
+Save and open the live URL.
