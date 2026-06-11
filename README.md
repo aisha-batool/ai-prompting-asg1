@@ -38,3 +38,11 @@ Do not upload only the ZIP file.
 - Hitting any snake body is not counted as eating.
 - Big and poison snakes can end the game if their head bumps/eats the player.
 - Small snakes avoid bumping into the player by changing direction.
+
+
+## Small snake rule update
+
+- Small snakes still avoid bumping into the player.
+- The player can now eat a smaller snake from any part of the small snake.
+- The player must still be larger than the small snake.
+- Big and poison snakes remain dangerous from any body part.

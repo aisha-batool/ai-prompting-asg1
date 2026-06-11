@@ -81,7 +81,7 @@
     food = getFreePosition(6);
 
     updateHud();
-    showOverlay("Snake Survival Arena", "Eat food and smaller snakes from the mouth side only. Avoid bigger and poison snakes.", "Start Game");
+    showOverlay("Snake Survival Arena", "Eat food and smaller snakes from anywhere. Avoid bigger and poison snakes.", "Start Game");
     draw();
   }
 
@@ -158,13 +158,15 @@
 
     for (let i = enemies.length - 1; i >= 0; i--) {
       const enemy = enemies[i];
-      const enemyHead = enemy.body[0];
-      const hitEnemyHead = same(head, enemyHead);
-      const hitEnemyBodyIndex = enemy.body.findIndex((part, index) => index > 0 && same(part, head));
+      const hitIndex = enemy.body.findIndex(part => same(part, head));
 
-      // Mouth-to-mouth eating only.
-      if (hitEnemyHead) {
-        if (enemy.type === "small" && player.length > enemy.body.length) {
+      if (hitIndex === -1) continue;
+
+      // Updated rule:
+      // The player can eat a small snake from anywhere, not only the mouth/head.
+      // But the player must still be larger than that small snake.
+      if (enemy.type === "small") {
+        if (player.length > enemy.body.length) {
           score += 3 + enemy.body.length;
           pendingGrowth += Math.min(6, enemy.body.length);
           enemies.splice(i, 1);
@@ -173,27 +175,18 @@
           return false;
         }
 
-        if (enemy.type === "small") {
-          endGame("You tried to eat a snake that was not smaller than you.", true);
-        } else if (enemy.type === "big") {
-          endGame("You bumped into a bigger snake head.", true);
-        } else {
-          endGame("You touched a poison snake head.", true);
-        }
+        endGame("This snake is not smaller than you.", true);
         return true;
       }
 
-      // Hitting a snake body is not eating. Eating must happen from mouth side/head.
-      if (hitEnemyBodyIndex !== -1) {
-        if (enemy.type === "small") {
-          endGame("You hit the small snake's body. Eat from the mouth side only.", true);
-        } else if (enemy.type === "big") {
-          endGame("You hit a bigger snake's body.", true);
-        } else {
-          endGame("You touched a poison snake's body.", true);
-        }
-        return true;
+      // Big and poison snakes are dangerous from any body part.
+      if (enemy.type === "big") {
+        endGame("You hit a bigger snake.", true);
+      } else {
+        endGame("You touched a poison snake.", true);
       }
+
+      return true;
     }
 
     return false;
