@@ -1,22 +1,22 @@
 # Snake Survival Arena
 
-A premium browser-based Snake game with a full landing page and improved realistic snake drawing.
+This version updates the landing page UI to closely match the earlier premium mockup:
 
-## What is included
+- Dark jungle/game UI
+- Top navigation
+- Big hero title
+- Realistic snake-style hero illustration using CSS
+- Play Now and GitHub buttons
+- Four feature cards
+- Live gameplay preview section
+- Leaderboard preview
+- Browser CTA section
+- Actual playable snake game below
+- Realistic canvas snakes with curved bodies, eyes, tongue, and scale highlights
 
-- Landing page hero section
-- Feature cards
-- Playable canvas game
-- Realistic snake-like canvas rendering
-- Smooth curved snake bodies
-- Scale highlights, eyes, and tongue
-- Enemy snakes with different danger types
-- Increasing level and speed
-- Screen wrapping
-- Keyboard, button, and mobile swipe controls
-- High score saved in browser
+## Upload to GitHub Pages
 
-## Files
+Extract the ZIP and upload these files to your repository root:
 
 ```text
 index.html
@@ -25,26 +25,4 @@ game.js
 README.md
 ```
 
-## GitHub Pages
-
-Upload these files directly in the root of your GitHub repository.
-
-Correct:
-
-```text
-snakegame/
-├── index.html
-├── style.css
-├── game.js
-└── README.md
-```
-
-Then go to:
-
-```text
-Settings → Pages → Deploy from a branch → main → /root → Save
-```
-
-## Important
-
-Do not upload the ZIP file itself to GitHub Pages. Extract it first and upload the four files.
+Do not upload only the ZIP file.

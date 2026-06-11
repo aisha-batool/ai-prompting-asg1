@@ -4,160 +4,222 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Snake Survival Arena</title>
-  <meta name="description" content="A browser-based snake survival game with increasing levels, realistic snake visuals, enemy snakes, and wrap-around gameplay." />
+  <meta name="description" content="Snake Survival Arena - eat, survive, evolve in a browser-based snake game." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#home" aria-label="Snake Survival Arena home">
-      <span class="brand-mark">🐍</span>
-      <span><strong>Snake</strong> Survival Arena</span>
+    <a class="brand" href="#home">
+      <span class="brand-logo">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M10 36C13 18 28 8 45 9c8 1 12 7 10 14-2 8-11 11-18 8-5-2-9 0-10 4-1 5 4 9 11 9 4 0 8-1 13-3-5 9-14 14-25 12C15 51 8 45 10 36Z"/>
+          <circle cx="45" cy="20" r="3"/>
+          <path d="M50 28c5 0 8 2 10 6-5-2-8-2-12 0" />
+        </svg>
+      </span>
+      <span><b>SNAKE</b> SURVIVAL ARENA</span>
     </a>
 
     <nav class="nav">
-      <a href="#home">Home</a>
+      <a href="#home" class="active">Home</a>
       <a href="#features">Features</a>
-      <a href="#game">Play</a>
+      <a href="#gameplay">Gameplay</a>
       <a href="#how">How to Play</a>
+      <a href="#leaderboard">Leaderboard</a>
     </nav>
 
-    <a class="github-btn" href="https://github.com/aisha-batool/snakegame" target="_blank" rel="noreferrer">
-      GitHub
+    <a class="github-button" href="https://github.com/aisha-batool/snakegame" target="_blank" rel="noreferrer">
+      <span>GitHub</span>
+      <strong>View on GitHub</strong>
     </a>
   </header>
 
   <main>
-    <section id="home" class="hero">
-      <div class="hero-bg-snake snake-one"></div>
-      <div class="hero-bg-snake snake-two"></div>
-      <div class="hero-bg-snake snake-three"></div>
+    <section id="home" class="hero-section">
+      <div class="jungle-layer"></div>
+      <div class="snake-scene">
+        <div class="realistic-snake player-snake">
+          <span class="snake-head"></span>
+          <span class="snake-body body-1"></span>
+          <span class="snake-body body-2"></span>
+          <span class="snake-body body-3"></span>
+        </div>
+        <div class="enemy-snake red-snake"></div>
+        <div class="enemy-snake purple-snake"></div>
+      </div>
 
-      <div class="hero-content">
-        <p class="eyebrow">Web Based Snake Survival Game</p>
-        <h1>Snake Survival Arena</h1>
+      <div class="hero-copy">
+        <h1><span>SNAKE</span><br />SURVIVAL ARENA</h1>
         <h2>Eat. Survive. Evolve.</h2>
-        <p class="hero-text">
-          Grow your snake, eat smaller snakes, avoid bigger and poison enemies, and survive faster levels
-          in a wrap-around arena.
+        <p>
+          A thrilling web-based snake survival game with increasing levels, deadlier enemies,
+          and non-stop action. Grow stronger, climb higher, and dominate the arena.
         </p>
 
         <div class="hero-actions">
-          <a class="primary-btn" href="#game">Play Now</a>
-          <a class="secondary-btn" href="#features">View Features</a>
-        </div>
-      </div>
-
-      <div class="hero-panel">
-        <div class="real-snake-preview">
-          <div class="snake-head-illustration"></div>
-          <div class="snake-coil coil-a"></div>
-          <div class="snake-coil coil-b"></div>
-          <div class="snake-coil coil-c"></div>
-        </div>
-
-        <div class="preview-card">
-          <span>Current Mode</span>
-          <strong>Survival Arena</strong>
-          <small>Levels get harder as you score.</small>
+          <a href="#play" class="play-button">Play Now <span>▶</span></a>
+          <a href="https://github.com/aisha-batool/snakegame" class="outline-button" target="_blank" rel="noreferrer">View on GitHub</a>
         </div>
       </div>
     </section>
 
-    <section id="features" class="features">
+    <section id="features" class="feature-row">
       <article class="feature-card">
-        <div class="icon">📈</div>
-        <h3>Increasing Levels</h3>
-        <p>Speed, enemy count, and danger increase as your score grows.</p>
+        <div class="feature-icon chart-icon">↗</div>
+        <div>
+          <h3>Increasing Levels</h3>
+          <p>Levels get harder as you grow. Face faster snakes and tighter challenges.</p>
+        </div>
       </article>
 
       <article class="feature-card">
-        <div class="icon">🌐</div>
-        <h3>Wrap-Around Gameplay</h3>
-        <p>No walls. Exit one side of the arena and enter from the opposite side.</p>
+        <div class="feature-icon wrap-icon">◎</div>
+        <div>
+          <h3>Wrap-Around Gameplay</h3>
+          <p>Exit one side, appear on the opposite. No walls. Just endless arena.</p>
+        </div>
       </article>
 
       <article class="feature-card">
-        <div class="icon">🐍</div>
-        <h3>Eat Smaller Snakes</h3>
-        <p>Blue smaller snakes are safe only when your snake is longer than them.</p>
+        <div class="feature-icon snake-icon">🐍</div>
+        <div>
+          <h3>Eat Smaller Snakes</h3>
+          <p>Hunt smaller snakes to grow longer and earn more points.</p>
+        </div>
       </article>
 
-      <article class="feature-card danger">
-        <div class="icon">☠️</div>
-        <h3>Avoid Bigger & Poison Snakes</h3>
-        <p>Red bigger snakes and purple poison snakes end your game immediately.</p>
+      <article class="feature-card poison-card">
+        <div class="feature-icon poison-icon">☠</div>
+        <div>
+          <h3>Avoid Bigger & Poison Snakes</h3>
+          <p>Stay away from bigger snakes and deadly poison snakes. One bite can end your run.</p>
+        </div>
       </article>
     </section>
 
-    <section id="game" class="game-shell">
-      <div class="game-intro">
-        <p class="eyebrow">Live Gameplay</p>
+    <section id="gameplay" class="preview-section">
+      <div class="preview-copy">
+        <p class="green-label">Live Gameplay Preview</p>
         <h2>Survive the Arena</h2>
         <p>
-          Use keyboard or mobile controls. The game is fully browser-based and ready for GitHub Pages.
+          Real-time action, smooth controls, and intense survival. Every match is a new challenge.
         </p>
+
+        <ul>
+          <li>Real-time score & level tracking</li>
+          <li>Responsive keyboard, button, and swipe controls</li>
+          <li>Optimized for all modern browsers</li>
+        </ul>
       </div>
 
-      <section class="topbar">
-        <div class="hud">
+      <div class="browser-preview">
+        <div class="browser-top">
+          <span class="window-dot red"></span>
+          <span class="window-dot yellow"></span>
+          <span class="window-dot green"></span>
+          <div class="url-bar">https://aisha-batool.github.io/snakegame/</div>
+        </div>
+
+        <div class="preview-game-art">
+          <div class="mini-stats">
+            <span>Score</span><b>2,450</b>
+            <span>Level</span><b>7</b>
+            <span>Length</span><b>42</b>
+          </div>
+
+          <div class="preview-snake"></div>
+
+          <div id="leaderboard" class="leaderboard">
+            <h4>Leaderboard</h4>
+            <ol>
+              <li><span>PythonMaster</span><b>12,450</b></li>
+              <li><span>VenomKing</span><b>9,870</b></li>
+              <li><span>SnakeLord</span><b>7,620</b></li>
+              <li><span>CoilCrusher</span><b>5,430</b></li>
+              <li class="me"><span>GreenStrike</span><b>2,450</b></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="browser-cta">
+      <div class="globe-icon">◎</div>
+      <div>
+        <h2>Play <span>Snake Survival Arena</span> in your browser</h2>
+        <p>No downloads. No installs. Just open and play. Challenge yourself and become the longest snake in the arena.</p>
+      </div>
+      <a href="#play" class="play-button">Play Now in Browser <span>▶</span></a>
+    </section>
+
+    <section id="play" class="actual-game-section">
+      <div class="game-heading">
+        <p class="green-label">Playable Game</p>
+        <h2>Start Playing</h2>
+        <p>Use Arrow keys / WASD. Space or P pauses. On mobile, use buttons or swipe the arena.</p>
+      </div>
+
+      <section class="game-shell">
+        <section class="hud">
           <div><span>Score</span><strong id="score">0</strong></div>
           <div><span>Level</span><strong id="level">1</strong></div>
           <div><span>Length</span><strong id="length">4</strong></div>
           <div><span>High</span><strong id="highScore">0</strong></div>
-        </div>
-      </section>
+        </section>
 
-      <section class="game-area">
-        <canvas id="gameCanvas" width="760" height="520"></canvas>
+        <section class="game-area">
+          <canvas id="gameCanvas" width="760" height="520"></canvas>
 
-        <div id="overlay" class="overlay">
-          <h2 id="overlayTitle">Snake Survival Arena</h2>
-          <p id="overlayText">Press Start, Space, or Enter to play.</p>
-          <button id="startButton">Start Game</button>
-        </div>
-      </section>
+          <div id="overlay" class="overlay">
+            <h2 id="overlayTitle">Snake Survival Arena</h2>
+            <p id="overlayText">Press Start, Space, or Enter to play.</p>
+            <button id="startButton">Start Game</button>
+          </div>
+        </section>
 
-      <section class="legend">
-        <span><i class="dot food"></i> Food</span>
-        <span><i class="dot player"></i> You</span>
-        <span><i class="dot small"></i> Smaller snake = safe</span>
-        <span><i class="dot big"></i> Bigger snake = death</span>
-        <span><i class="dot poison"></i> Poison snake = death</span>
-      </section>
+        <section class="legend">
+          <span><i class="dot food"></i> Food</span>
+          <span><i class="dot player"></i> You</span>
+          <span><i class="dot small"></i> Smaller snake = safe</span>
+          <span><i class="dot big"></i> Bigger snake = death</span>
+          <span><i class="dot poison"></i> Poison snake = death</span>
+        </section>
 
-      <section class="buttons">
-        <button id="pauseButton">Pause</button>
-        <button id="restartButton">Restart</button>
-      </section>
+        <section class="buttons">
+          <button id="pauseButton">Pause</button>
+          <button id="restartButton">Restart</button>
+        </section>
 
-      <section class="mobile-controls" aria-label="Mobile controls">
-        <button data-dir="UP">▲</button>
-        <div>
-          <button data-dir="LEFT">◀</button>
-          <button data-dir="DOWN">▼</button>
-          <button data-dir="RIGHT">▶</button>
-        </div>
+        <section class="mobile-controls" aria-label="Mobile controls">
+          <button data-dir="UP">▲</button>
+          <div>
+            <button data-dir="LEFT">◀</button>
+            <button data-dir="DOWN">▼</button>
+            <button data-dir="RIGHT">▶</button>
+          </div>
+        </section>
       </section>
     </section>
 
-    <section id="how" class="how-to">
-      <div>
-        <p class="eyebrow">How to Play</p>
-        <h2>Simple Rules</h2>
-      </div>
-
-      <div class="rules-grid">
-        <div><strong>Move</strong><span>Arrow keys or WASD</span></div>
-        <div><strong>Pause</strong><span>Space or P</span></div>
-        <div><strong>Grow</strong><span>Eat food and smaller snakes</span></div>
-        <div><strong>Survive</strong><span>Avoid big and poison snakes</span></div>
+    <section id="how" class="how-section">
+      <div class="how-card">
+        <h2>How to Play</h2>
+        <div class="rules-grid">
+          <div><b>Move</b><span>Arrow keys / WASD / swipe</span></div>
+          <div><b>Grow</b><span>Eat food and smaller snakes</span></div>
+          <div><b>Avoid</b><span>Bigger red snakes and purple poison snakes</span></div>
+          <div><b>Win</b><span>Survive longer, level up, and beat your high score</span></div>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <span>© Snake Survival Arena</span>
-    <span>Built for GitHub Pages</span>
+  <footer class="site-footer">
+    <span>© 2026 Snake Survival Arena. All rights reserved.</span>
+    <span>🎮 Built for the Web</span>
+    <span>🛡 Safe & Secure</span>
+    <span>⚡ Fast & Lightweight</span>
+    <span>Made with 💚 for gamers</span>
   </footer>
 
   <script src="game.js"></script>

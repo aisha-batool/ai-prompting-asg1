@@ -370,7 +370,6 @@
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // subtle honeycomb/scale-like background
     ctx.strokeStyle = COLORS.grid;
     ctx.lineWidth = 1;
 
@@ -381,11 +380,10 @@
       }
     }
 
-    // glowy jungle particles
     for (let i = 0; i < 20; i++) {
       const x = (i * 137 + Math.sin(pulse + i) * 40) % canvas.width;
       const y = (i * 91 + Math.cos(pulse * 0.7 + i) * 30) % canvas.height;
-      ctx.fillStyle = i % 3 === 0 ? "rgba(114,255,63,0.22)" : "rgba(255,216,74,0.16)";
+      ctx.fillStyle = i % 3 === 0 ? "rgba(140,255,63,0.22)" : "rgba(255,216,74,0.16)";
       ctx.beginPath();
       ctx.arc(x, y, 2 + (i % 4), 0, Math.PI * 2);
       ctx.fill();
@@ -447,7 +445,6 @@
         y: part.y * CELL + CELL / 2
       };
 
-      // small visual wave to look less square and more natural
       if (index > 0 && index < body.length - 1) {
         const wave = Math.sin(index * 0.9 + pulse + phase) * 2.1;
         center.x += wave;
@@ -458,7 +455,7 @@
     });
 
     drawSnakeBodyPath(points, palette, type);
-    drawSnakeScales(points, palette, type);
+    drawSnakeScales(points, type);
     drawSnakeHead(points[0], dir, palette, type);
   }
 
@@ -469,7 +466,6 @@
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
-    // shadow base
     ctx.strokeStyle = "rgba(0,0,0,0.46)";
     ctx.lineWidth = type === "big" ? 23 : 20;
     drawSmoothPath(points);
@@ -485,7 +481,6 @@
     drawSmoothPath(points);
     ctx.stroke();
 
-    // bright top highlight
     ctx.strokeStyle = "rgba(255,255,255,0.18)";
     ctx.lineWidth = 4;
     drawSmoothPath(points.map((p, i) => ({ x: p.x - 2, y: p.y - 3 + Math.sin(i + pulse) })));
@@ -510,7 +505,7 @@
     }
   }
 
-  function drawSnakeScales(points, palette, type) {
+  function drawSnakeScales(points, type) {
     ctx.save();
 
     const every = type === "big" ? 1 : 2;
@@ -558,7 +553,6 @@
 
     ctx.shadowBlur = 0;
 
-    // nose/mouth
     ctx.strokeStyle = "rgba(0,0,0,0.34)";
     ctx.lineWidth = 1.4;
     ctx.beginPath();
@@ -566,11 +560,9 @@
     ctx.lineTo(size - 5, 0);
     ctx.stroke();
 
-    // eyes
     drawEye(1, -6);
     drawEye(1, 6);
 
-    // tongue
     ctx.strokeStyle = COLORS.tongue;
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
@@ -653,7 +645,6 @@
     button.addEventListener("click", () => setDirection(button.dataset.dir));
   });
 
-  // Swipe controls for mobile
   let touchStartX = 0;
   let touchStartY = 0;
 
