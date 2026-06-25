@@ -1,0 +1,63 @@
+Novice vs. Power User
+What was DIFFERENT about the second answer?
+The second answer was tailored to the specific situation because it included relevant context and constraints. Instead of giving general advice, it provided more targeted, practical recommendations that were directly applicable.
+
+Knows vs. Guesses
+Did the AI admit when it wasn't sure, or sound confident anyway?
+The AI admitted when it wasn't sure. For the local news and employment-law questions, it avoided guessing and explained that the information could be current, local, or dependent on specific legal rules that needed verification.
+
+The 3 Retrieval Modes
+Which prompts made the AI actually search? How could you tell?
+* "What's the weather forecast for my city this weekend? Use a current source and cite it."
+This prompt requires current information because weather changes frequently.
+I could tell the AI searched because it would provide recent sources and citations for the forecast.
+* "What are the latest developments this month in [your field]? Cite each claim, and mark anything you can't support as 'unverified'."
+This prompt asks for the latest developments, which cannot be answered reliably from pre-trained knowledge alone.
+I could tell the AI searched because it would cite recent articles, reports, or news sources.
+* "Research [a topic you care about] thoroughly. Use reputable sources only (government sites, peer-reviewed studies, official reports—not forums). Produce a structured report..."
+This prompt requires gathering and synthesizing information from multiple reliable sources.
+I could tell the AI performed deep research because the response included a structured report, multiple citations, a comparison table, and analysis of the topic.
+
+Context Is Everything
+Which single piece of context changed the answer the most?
+For the dinner example, "One person doesn't eat spicy food" changed the answer the most because it affects the meal choices.
+For the work example, "The reader is my team, who like quick bullet points" changed the answer the most because it affects the writing style.
+
+Think Hard
+Did "think hard" produce a deeper answer? What changed?
+Yes. The "think hard" prompt produced a more detailed answer. It considered multiple factors and trade-offs, provided better reasoning and justification and offered structured recommendations instead of a quick answer.
+
+Stop the Flattery
+Did Step B give you a reason you hadn't thought of? Write one۔
+Yes. Step B provided a balanced perspective and highlighted a drawback that I had not considered before. It pointed out a potential disadvantage or alternative viewpoint instead of simply supporting my original opinion.
+
+The Brainstorm–Iterate Loop
+Was the idea you ended with better than anything in Round 1? Why?
+Yes. The final idea was better because it was refined based on feedback and matched my needs more closely. The brainstorming loop helped improve the original options and produced a more personalized and practical solution.
+
+Multimodal — Image & Audio
+What did the AI read correctly? What did it get wrong or flag?
+The AI correctly identified most of the text and the main points in the image. Some small details or numbers needed manual checking.
+
+Build a Small App
+Did it work first try? What did you change in the iterate step?
+Yes, the app worked on the first try and performed the required calculations correctly. I tried to improve the features further through prompting.
+
+Data Analysis
+Did Round 1 run code or guess? How could you tell the difference?
+If code was actually run, the AI would display the code and/or show execution results. Without visible code or output, there is no proof that calculations were performed programmatically. Some small details or numbers needed manual checking.
+
+Working safely & choosing tools
+What's one thing you'd NEVER grant an AI app on day one?
+I would never grant an AI app full access to all my files and folders on day one.
+
+Which Model When
+Which tool did better on THIS task — and what was different?
+Claude worked better than chatgpt on this task. I like writing style of chatgpt more.
+
+Models Checking Models
+What did Tool B catch that Tool A missed (or vice versa)?
+Claude caught that the draft could be more concise and improve readability.
+ChatGPT suggested a stronger structure.
+
+
