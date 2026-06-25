@@ -13,20 +13,6 @@ This version updates the landing page UI to closely match the earlier premium mo
 - Actual playable snake game below
 - Realistic canvas snakes with curved bodies, eyes, tongue, and scale highlights
 
-## Upload to GitHub Pages
-
-Extract the ZIP and upload these files to your repository root:
-
-```text
-index.html
-style.css
-game.js
-README.md
-```
-
-Do not upload only the ZIP file.
-
-
 ## Gameplay rule fixes in this version
 
 - Fixed the visual bug when a snake wraps around the canvas.
@@ -38,7 +24,6 @@ Do not upload only the ZIP file.
 - Big and poison snakes can end the game if their head bumps/eats the player.
 - Small snakes avoid bumping into the player by changing direction.
 
-
 ## Small snake rule update
 
 - Small snakes still avoid bumping into the player.
@@ -47,5 +32,4 @@ Do not upload only the ZIP file.
 - Big and poison snakes remain dangerous from any body part.
 
 ## Update
-
 - Removed leaderboard from the landing page preview.
